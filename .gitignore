@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Django
+db.sqlite3
+db.sqlite3-journal
+*.log
+media/
+results/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Trained model files (large binaries)
+model/*.pkl
+model/*.pt
+
+# Sensitive config
+*.env
+
+# Claude Code
+.claude/
+
+# Migration plan (internal document)
+LSTM_MIGRATION_PLAN.md

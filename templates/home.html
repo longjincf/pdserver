@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>步健慧测</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #2d8cf0;      /* 医疗蓝 */
+      --secondary: #5cad8a;    /* 医疗绿 */
+      --warning: #f5a623;      /* 提示橙 */
+      --danger: #f25652;       /* 危险红 */
+      --light: #f7f9fc;
+      --dark: #2c3e50;
+      --card-bg: #ffffff;
+      --border: #dcdfe6;
+      --shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Microsoft Yahei", sans-serif;
+      background-color: var(--light);
+      color: var(--dark);
+      padding-top: 60px;
+      line-height: 1.6;
+    }
+
+    /* 顶部导航栏 */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      padding: 0.7rem 1rem;
+      z-index: 1000;
+    }
+
+    .nav-container {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-brand {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-menu {
+      display: flex;
+      list-style: none;
+      gap: 1rem;
+    }
+
+    .nav-menu a {
+      text-decoration: none;
+      color: var(--dark);
+      padding: 6px 10px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-menu a:hover,
+    .nav-menu a.active {
+      background: #eef5ff;
+      color: var(--primary);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    header {
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+      color: var(--dark);
+    }
+
+    header p {
+      color: #606266;
+      font-size: 1.05rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .card h2 {
+      margin-bottom: 1rem;
+      font-size: 1.3rem;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modules {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    .module-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 1.2rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.2s ease;
+    }
+
+    .module-btn:hover {
+      background: #f7f9fc;
+      border-color: var(--primary);
+    }
+
+    .module-btn i {
+      font-size: 1.6rem;
+      width: 28px;
+      text-align: center;
+      color: var(--primary);
+    }
+
+    .module-info h3 {
+      font-size: 1.05rem;
+      margin-bottom: 4px;
+      color: var(--dark);
+    }
+
+    .module-info p {
+      color: #606266;
+      font-size: 0.92rem;
+    }
+
+    .steps {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+      flex-wrap: wrap;
+    }
+
+    .step {
+      text-align: center;
+      max-width: 180px;
+    }
+
+    .step-number {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 0.5rem;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    .deploy-notes {
+      background: #f7f9fc;
+      border-radius: 12px;
+      padding: 1.2rem;
+      margin-top: 1.5rem;
+    }
+
+    .deploy-notes h3 {
+      margin-bottom: 0.5rem;
+      color: #606266;
+      font-size: 0.95rem;
+    }
+
+    .deploy-notes ul {
+      padding-left: 1.5rem;
+      color: #303133;
+      font-size: 0.88rem;
+      line-height: 1.6;
+    }
+
+    code {
+      background: #e9ecef;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.88rem;
+    }
+
+    footer {
+      margin-top: 2rem;
+      text-align: center;
+      color: #909399;
+      font-size: 0.88rem;
+      padding-bottom: 2rem;
+    }
+
+    @media (max-width: 600px) {
+      .nav-container {
+        flex-direction: column;
+        gap: 8px;
+        padding: 0.5rem;
+      }
+      .nav-menu {
+        width: 100%;
+        justify-content: space-around;
+      }
+      body {
+        padding-top: 110px;
+      }
+    }
+
+    .lang-toggle {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+    }
+
+    .lang-toggle:hover {
+      background: #1a7ad9;
+    }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="nav-brand">
+      <i class="fas fa-heartbeat"></i>
+      <span id="nav-brand-text">步健慧测</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <button class="lang-toggle" id="langToggle">
+        <i class="fas fa-language"></i>
+        <span id="toggleText">English</span>
+      </button>
+      <ul class="nav-menu">
+        <li><a href="/face"><i class="fas fa-video"></i><span id="nav-face">面部</span></a></li>
+        <li><a href="/voice"><i class="fas fa-microphone"></i><span id="nav-voice">声音</span></a></li>
+        <li><a href="/gait"><i class="fas fa-walking"></i><span id="nav-gait">步态</span></a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <header>
+    <h1 id="main-title">多模态帕金森评估</h1>
+    <p id="main-subtitle">通过面部、声音与步态多项检测，辅助临床评估与健康监测</p>
+  </header>
+
+  <section class="card">
+    <h2><i class="fas fa-list-alt"></i><span id="section1-title">选择评估项目</span></h2>
+    <div class="modules">
+      <a href="/face" class="module-btn">
+        <i class="fas fa-video"></i>
+        <div class="module-info">
+          <h3 id="module1-title">面部评估</h3>
+          <p id="module1-desc">拍摄面部视频，观察表情与运动状态</p>
+        </div>
+      </a>
+      <a href="/voice" class="module-btn">
+        <i class="fas fa-microphone"></i>
+        <div class="module-info">
+          <h3 id="module2-title">声音评估</h3>
+          <p id="module2-desc">录制或上传音频，分析声音特征变化</p>
+        </div>
+      </a>
+      <a href="/gait" class="module-btn">
+        <i class="fas fa-walking"></i>
+        <div class="module-info">
+          <h3 id="module3-title">步态评估</h3>
+          <p id="module3-desc">拍摄行走视频或使用步态数据进行分析</p>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2><i class="fas fa-clipboard-check"></i><span id="section2-title">操作流程</span></h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">1</div>
+        <h4 id="step1-title">选择项目</h4>
+        <p id="step1-desc">点击上述项目卡片进入检测</p>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <h4 id="step2-title">采集数据</h4>
+        <p id="step2-desc">按提示拍摄视频或录制音频</p>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <h4 id="step3-title">查看结果</h4>
+        <p id="step3-desc">系统分析完成后查看评估报告</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="deploy-notes">
+    <h3 id="tech-title">技术提示（管理员）</h3>
+    <ul>
+      <li id="tech-note1">面部模块需将 insightface 模型文件放到 <code>api/models/</code> 目录</li>
+      <li id="tech-note2">步态模块需设置环境变量 <code>GAIT_DATA_PATH</code> 指向数据集目录</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p id="footer-text">本系统仅供临床辅助评估，不替代专业医师诊断</p>
+  </footer>
+</div>
+
+<script>
+  const translations = {
+    'zh-CN': {
+      'nav-brand-text': '龙成飞の步健慧测',
+      'toggleText': 'English',
+      'nav-face': '面部',
+      'nav-voice': '声音',
+      'nav-gait': '步态',
+      'main-title': '多模态帕金森评估',
+      'main-subtitle': '通过面部、声音与步态多项检测，辅助临床评估与健康监测',
+      'section1-title': '选择评估项目',
+      'module1-title': '面部评估',
+      'module1-desc': '拍摄面部视频，观察表情与运动状态',
+      'module2-title': '声音评估',
+      'module2-desc': '录制或上传音频，分析声音特征变化',
+      'module3-title': '步态评估',
+      'module3-desc': '拍摄行走视频或使用步态数据进行分析',
+      'section2-title': '操作流程',
+      'step1-title': '选择项目',
+      'step1-desc': '点击上述项目卡片进入检测',
+      'step2-title': '采集数据',
+      'step2-desc': '按提示拍摄视频或录制音频',
+      'step3-title': '查看结果',
+      'step3-desc': '系统分析完成后查看评估报告',
+      'tech-title': '技术提示（管理员）',
+      'tech-note1': '面部模块需将 insightface 模型文件放到 <code>api/models/</code> 目录',
+      'tech-note2': '步态模块需设置环境变量 <code>GAIT_DATA_PATH</code> 指向数据集目录',
+      'footer-text': '本系统仅供临床辅助评估，不替代专业医师诊断'
+    },
+    'en-US': {
+      'nav-brand-text': 'StepHealth',
+      'toggleText': '中文',
+      'nav-face': 'Face',
+      'nav-voice': 'Voice',
+      'nav-gait': 'Gait',
+      'main-title': 'Multimodal Parkinson Assessment',
+      'main-subtitle': 'Assist clinical evaluation and health monitoring through multiple tests of face, voice and gait',
+      'section1-title': 'Select Assessment Items',
+      'module1-title': 'Facial Assessment',
+      'module1-desc': 'Record facial video to observe expressions and movements',
+      'module2-title': 'Voice Assessment',
+      'module2-desc': 'Record or upload audio to analyze voice characteristics',
+      'module3-title': 'Gait Assessment',
+      'module3-desc': 'Record walking video or use gait data for analysis',
+      'section2-title': 'Operation Process',
+      'step1-title': 'Select Item',
+      'step1-desc': 'Click the above item cards to enter detection',
+      'step2-title': 'Collect Data',
+      'step2-desc': 'Record video or audio as prompted',
+      'step3-title': 'View Results',
+      'step3-desc': 'View assessment report after system analysis',
+      'tech-title': 'Technical Notes (Admin)',
+      'tech-note1': 'Face module requires insightface model files in <code>api/models/</code> directory',
+      'tech-note2': 'Gait module requires environment variable <code>GAIT_DATA_PATH</code> pointing to dataset directory',
+      'footer-text': 'This system is for clinical assistance only, not a substitute for professional diagnosis'
+    }
+  };
+
+  let currentLang = 'zh-CN';
+  const langToggle = document.getElementById('langToggle');
+  const toggleText = document.getElementById('toggleText');
+
+  function toggleLanguage() {
+    currentLang = currentLang === 'zh-CN' ? 'en-US' : 'zh-CN';
+    toggleText.textContent = translations[currentLang]['toggleText'];
+    
+    for (const [key, value] of Object.entries(translations[currentLang])) {
+      const element = document.getElementById(key);
+      if (element) {
+        element.innerHTML = value;
+      }
+    }
+  }
+
+  langToggle.addEventListener('click', toggleLanguage);
+</script>
+</body>
+</html>
+

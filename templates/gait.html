@@ -1,0 +1,808 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>步态评估 - 步健慧测</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --secondary: #64748b;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+    }
+
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+
+    .tooltip .tooltip-text {
+      visibility: hidden;
+      width: 280px;
+      background-color: #334155;
+      color: #ffffff !important;
+      text-align: left;
+      border-radius: 6px;
+      padding: 10px 12px;
+      position: absolute;
+      z-index: 1002;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      font-size: 0.9rem;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    }
+
+    .tooltip .tooltip-text::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #334155 transparent transparent transparent;
+    }
+
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(180deg, var(--bg), #eef2ff);
+      color: var(--text);
+      padding-top: 70px;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      padding: 0.8rem 1rem;
+      z-index: 1000;
+    }
+
+    .nav-container {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-brand {
+      font-weight: 800;
+      font-size: 1.3rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-menu {
+      display: flex;
+      list-style: none;
+      gap: 1rem;
+    }
+
+    .nav-menu a {
+      text-decoration: none;
+      color: var(--secondary);
+      padding: 6px 10px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .secondary{
+      margin-top: 10px;
+    }
+
+    .nav-menu a:hover,
+    .nav-menu a.active {
+      background: #eef2ff;
+      color: var(--primary);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      margin: 2rem auto;
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .header {
+      background: #f1f5f9;
+      color: var(--text);
+      padding: 1.5rem 2rem;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card {
+      padding: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .upload-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 3rem 1rem;
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      background: #fafafa;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-align: center;
+    }
+
+    .upload-area:hover {
+      border-color: var(--primary);
+      background: #f5f7ff;
+    }
+
+    .upload-area.hidden {
+      display: none;
+    }
+
+    .video-preview-container {
+      margin: 1rem 0;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #000;
+      display: none;
+    }
+
+    .video-preview-container.visible {
+      display: block;
+    }
+
+    .video-preview {
+      width: 100%;
+      display: block;
+    }
+
+    .video-controls {
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      background: rgba(0,0,0,0.7);
+    }
+
+    .video-control-btn {
+      background: none;
+      border: none;
+      color: white;
+      width: auto;
+      padding: 5px 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+
+    .video-control-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .file-name {
+      margin-top: 0.75rem;
+      font-style: italic;
+      color: var(--muted);
+      font-size: 0.95rem;
+      word-break: break-all;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: var(--primary);
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 0.5rem;
+    }
+
+    button:hover {
+      background: #2563eb;
+    }
+
+    button:disabled {
+      background: var(--muted);
+      cursor: not-allowed;
+    }
+
+    /* 新增保存按钮样式 */
+    .save-btn {
+      background: #10b981;
+      margin-top: 1rem;
+    }
+
+    .save-btn:hover {
+      background: #059669;
+    }
+
+    .save-btn:disabled {
+      background: #9ca3af;
+    }
+
+    .output {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      max-height: 240px;
+      overflow: auto;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .replace-actions {
+      margin-left: auto;
+    }
+
+    .replace-btn {
+      background: #fff;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+
+    .replace-btn:hover {
+      background: #f5f7ff;
+    }
+
+    /* 报表样式 */
+    .report {
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      display: none;
+    }
+    .report-title {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 1.4rem;
+      color: #1e293b;
+    }
+    .report-metrics {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-bottom: 1.5rem;
+    }
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .metric .label {
+      color: #64748b;
+      font-weight: 500;
+    }
+    .metric .value {
+      font-weight: bold;
+      color: #1e293b;
+      font-size: 1.05rem;
+    }
+    .report-grade {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .grade-label {
+      font-size: 1.1rem;
+      color: #64748b;
+    }
+    .grade-value {
+      font-size: 3.5rem;
+      font-weight: bold;
+      color: var(--primary);
+      background: #f1f5f9;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .report-description {
+      margin-top: 1rem;
+    }
+    .report-description h3 {
+      margin-bottom: 0.75rem;
+      font-size: 1.1rem;
+      color: #475569;
+    }
+    .report-description p {
+      color: #334155;
+      line-height: 1.7;
+      font-size: 1.05rem;
+    }
+
+    @media (max-width: 576px) {
+      .card {
+        padding: 1.5rem 1rem;
+      }
+      .header {
+        padding: 1.25rem 1.5rem;
+      }
+      .header h1 {
+        font-size: 1.25rem;
+      }
+      .nav-container {
+        flex-direction: column;
+        gap: 10px;
+        padding: 0.5rem;
+      }
+      .nav-menu {
+        width: 100%;
+        justify-content: space-around;
+      }
+      body {
+        padding-top: 120px;
+      }
+      .grade-value {
+        font-size: 3rem;
+        width: 100px;
+        height: 100px;
+      }
+    }
+
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    
+    .back-button:hover {
+      background: #eef2ff;
+      color: var(--primary);
+    }
+
+    .error-message {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 8px;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+      display: none;
+    }
+
+    /* 新增消息提示样式 */
+    .message {
+      padding: 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+      text-align: center;
+      font-weight: 500;
+    }
+    
+    .message-success {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+    
+    .message-error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    /* 语言切换按钮样式 */
+    .lang-toggle {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+    }
+
+    .lang-toggle:hover {
+      background: #2563eb;
+    }
+  </style>
+</head>
+<body>
+
+<!-- 导航栏（和语音页面完全一致） -->
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="/" class="back-button" style="text-decoration: none; color: var(--primary); display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 8px; transition: all 0.2s ease;">
+      <i class="fas fa-arrow-left"></i>
+      <span id="nav-back">返回主页</span>
+    </a>
+    
+    <div class="nav-brand">
+      <i class="fas fa-heart-pulse"></i>
+      <span id="nav-brand-text">步健慧测</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <button class="lang-toggle" id="langToggle">
+        <i class="fas fa-language"></i>
+        <span id="toggleText">English</span>
+      </button>
+      <ul class="nav-menu">
+        <li><a href="/face"><i class="fas fa-video"></i><span id="nav-face">面部</span></a></li>
+        <li><a href="/voice"><i class="fas fa-microphone"></i><span id="nav-voice">声音</span></a></li>
+        <li><a href="/gait" class="active"><i class="fas fa-walking"></i><span id="nav-gait">步态</span></a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="header">
+    <h1><i class="fas fa-walking"></i><span id="main-title">步态评估（上传视频 mp4）</span></h1>
+  </div>
+  <div class="card">
+    <form id="form">
+      <div class="form-group">
+        <label for="video" id="video-label">选择步态视频（mp4）</label>
+        <label for="video" class="upload-area">
+          <i class="fas fa-cloud-upload-alt fa-2x"></i>
+          <div>
+            <strong id="upload-text1">点击或拖拽视频到此处</strong>
+            <p id="upload-text2">支持 MP4 等常见视频格式</p>
+          </div>
+        </label>
+        <input type="file" id="video" accept="video/*" />
+        <div id="file-name" class="file-name"></div>
+      </div>
+      <button type="submit" id="uploadBtn">
+        <i class="fas fa-upload"></i>
+        <span id="upload-btn-text">上传并评估（约耗时5分钟）</span>
+      </button>
+      <button type="button" id="useModelBtn" class="secondary">
+        <i class="fas fa-cogs"></i>
+        <span id="model-btn-text">使用已训练模型（示例）</span>
+      </button>
+
+      <!-- 新增保存数据按钮 -->
+      <button type="button" id="saveDataBtn" class="save-btn" disabled>
+        <i class="fas fa-save"></i>
+        <span id="saveBtnText">保存数据</span>
+        <span id="saveSpinner" class="spinner" style="display:none;"></span>
+      </button>
+    </form>
+
+    <!-- 保存结果消息 -->
+    <div id="save-message" style="display: none;"></div>
+
+    <!-- 上传评估结果报表 -->
+    <div id="upload-report" class="report">
+      <h2 class="report-title" id="upload-report-title">上传视频评估结果</h2>
+      <div id="upload-metrics"></div>
+    </div>
+
+    <!-- 使用已有模型评估结果报表 -->
+    <div id="model-report" class="report">
+      <h2 class="report-title" id="model-report-title">已训练模型评估结果</h2>
+      <div id="model-metrics"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const translations = {
+    'zh-CN': {
+      'nav-back': '返回主页',
+      'nav-brand-text': '步健慧测',
+      'toggleText': 'English',
+      'nav-face': '面部',
+      'nav-voice': '声音',
+      'nav-gait': '步态',
+      'main-title': '步态评估（上传视频 mp4）',
+      'video-label': '选择步态视频（mp4）',
+      'upload-text1': '点击或拖拽视频到此处',
+      'upload-text2': '支持 MP4 等常见视频格式',
+      'upload-btn-text': '上传并评估（约耗时5分钟）',
+      'model-btn-text': '使用已训练模型（示例）',
+      'saveBtnText': '保存数据',
+      'upload-report-title': '上传视频评估结果',
+      'model-report-title': '已训练模型评估结果'
+    },
+    'en-US': {
+      'nav-back': 'Back to Home',
+      'nav-brand-text': 'StepHealth',
+      'toggleText': '中文',
+      'nav-face': 'Face',
+      'nav-voice': 'Voice',
+      'nav-gait': 'Gait',
+      'main-title': 'Gait Assessment (Upload MP4 Video)',
+      'video-label': 'Select Gait Video (MP4)',
+      'upload-text1': 'Click or Drag Video Here',
+      'upload-text2': 'Supports MP4 and other common video formats',
+      'upload-btn-text': 'Upload and Assess (About 5 minutes)',
+      'model-btn-text': 'Use Trained Model (Example)',
+      'saveBtnText': 'Save Data',
+      'upload-report-title': 'Upload Video Assessment Results',
+      'model-report-title': 'Trained Model Assessment Results'
+    }
+  };
+
+  let currentLang = 'zh-CN';
+  const langToggle = document.getElementById('langToggle');
+  const toggleText = document.getElementById('toggleText');
+
+  function toggleLanguage() {
+    currentLang = currentLang === 'zh-CN' ? 'en-US' : 'zh-CN';
+    toggleText.textContent = translations[currentLang]['toggleText'];
+    
+    for (const [key, value] of Object.entries(translations[currentLang])) {
+      const element = document.getElementById(key);
+      if (element) {
+        element.textContent = value;
+      }
+    }
+  }
+
+  langToggle.addEventListener('click', toggleLanguage);
+
+  // 原有的JavaScript代码保持不变
+  const $ = id => document.getElementById(id);
+
+  // 存储当前评估数据
+  let currentAssessmentData = null;
+
+  // 文件名显示
+  $('video').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    $('file-name').textContent = file ? file.name : '';
+  });
+
+  // 上传并评估
+  $('form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const file = $('video').files[0];
+    if (!file) { alert('请先选择视频文件'); return; }
+
+    showLoading('upload');
+    $('saveDataBtn').disabled = true;
+    $('save-message').style.display = 'none';
+
+    try {
+      const fd = new FormData();
+      fd.append('video', file);
+      const res = await fetch('/api/gait_predict', { method: 'POST', body: fd });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      renderReport('upload', data);
+      
+      // 存储当前评估数据用于保存
+      if (data.features && data.prediction) {
+        currentAssessmentData = {
+          assessment_type: 'gait',
+          features: data.features,
+          prediction: data.prediction,
+          severity_bucket: data.prediction.severity_bucket,
+          total_updrs: data.prediction.total_UPDRS
+        };
+        $('saveDataBtn').disabled = false;
+      }
+    } catch (err) {
+      $('upload-metrics').innerHTML = `<p class="status-error">错误：${err.message}</p>`;
+      $('upload-report').style.display = 'block';
+    }
+  });
+
+  // 使用已训练模型
+  $('useModelBtn').addEventListener('click', async () => {
+    showLoading('model');
+    $('saveDataBtn').disabled = true;
+    $('save-message').style.display = 'none';
+
+    try {
+      const res = await fetch('/api/gait_predict', { method: 'POST' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      renderReport('model', data);
+      
+      // 存储当前评估数据用于保存
+      if (data.meta) {
+        currentAssessmentData = {
+          assessment_type: 'gait',
+          features: {},
+          prediction: { message: data.message },
+          severity_bucket: 0
+        };
+        $('saveDataBtn').disabled = false;
+      }
+    } catch (err) {
+      $('model-metrics').innerHTML = `<p class="status-error">错误：${err.message}</p>`;
+      $('model-report').style.display = 'block';
+    }
+  });
+
+  // 保存数据按钮点击事件
+  $('saveDataBtn').addEventListener('click', async () => {
+    if (!currentAssessmentData) {
+      showMessage('没有可保存的数据，请先进行评估', 'error');
+      return;
+    }
+
+    // 显示保存加载状态
+    $('saveDataBtn').disabled = true;
+    $('saveBtnText').textContent = '保存中...';
+    $('saveSpinner').style.display = 'inline-block';
+    $('save-message').style.display = 'none';
+
+    try {
+      const res = await fetch('/api/save_data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(currentAssessmentData)
+      });
+
+      if (!res.ok) throw new Error(`保存失败: ${res.status}`);
+
+      const result = await res.json();
+
+      if (result.success) {
+        showMessage(`数据保存成功！ID: ${result.id}`, 'success');
+      } else {
+        throw new Error(result.error || '保存失败');
+      }
+
+    } catch (err) {
+      showMessage('保存失败: ' + err.message, 'error');
+    } finally {
+      // 恢复保存按钮状态
+      $('saveDataBtn').disabled = false;
+      $('saveBtnText').textContent = '保存数据';
+      $('saveSpinner').style.display = 'none';
+    }
+  });
+
+  // 显示消息函数
+  function showMessage(message, type) {
+    const saveMessageEl = $('save-message');
+    saveMessageEl.textContent = message;
+    saveMessageEl.className = `message message-${type}`;
+    saveMessageEl.style.display = 'block';
+    
+    // 5秒后自动隐藏成功消息
+    if (type === 'success') {
+      setTimeout(() => {
+        saveMessageEl.style.display = 'none';
+      }, 5000);
+    }
+  }
+
+  function showLoading(type) {
+    const metricsEl = $(`${type}-metrics`);
+    const reportEl = $(`${type}-report`);
+    metricsEl.innerHTML = '<p class="loading">计算中，时间较长，约5分钟，请稍候...</p>';
+    reportEl.style.display = 'block';
+  }
+
+  function renderReport(type, data) {
+    const metricsEl = $(`${type}-metrics`);
+    const reportEl = $(`${type}-report`);
+
+    if (data.features && data.prediction) {
+      // 特征+预测结果
+      metricsEl.innerHTML = `
+        <div class="report-section">
+          <h3>视频与步态特征</h3>
+          <div class="metrics">
+            <div class="metric"><span class="label">时长</span><span class="value">${data.features.duration.toFixed(2)}s</span></div>
+            <div class="metric"><span class="label">步数</span><span class="value">${data.features.step_count}</span></div>
+            <div class="metric"><span class="label">步频</span><span class="value">${data.features.step_freq_per_min.toFixed(2)} 步/分钟</span></div>
+            <div class="metric"><span class="label">平均峰值间隔</span><span class="value">${data.features.mean_peak_interval.toFixed(3)}s</span></div>
+            <div class="metric"><span class="label">能量</span><span class="value">${data.features.energy.toFixed(2)}</span></div>
+            <div class="metric"><span class="label"> ankle_corr</span><span class="value">${data.features.ankle_corr.toFixed(3)}</span></div>
+          </div>
+        </div>
+        <div class="report-section">
+          <h3>预测结果</h3>
+          <div class="metrics">
+            <div class="metric"><span class="label">UPDRS 评分</span><span class="value">${data.prediction.total_UPDRS.toFixed(2)}</span></div>
+            <div class="metric"><span class="label">严重程度</span><span class="value">${getSeverityDesc(data.prediction.severity_bucket)}</span></div>
+          </div>
+        </div>
+      `;
+    } else {
+      // 模型就绪信息
+      metricsEl.innerHTML = `
+        <div class="metric"><span class="label">状态</span><span class="value">${data.message}</span></div>
+        <div class="metric"><span class="label">MAE</span><span class="value">${data.meta?.mae.toFixed(4)}</span></div>
+      `;
+    }
+    reportEl.style.display = 'block';
+  }
+
+  function getSeverityDesc(level) {
+    const arr = ["0级：正常","1级：轻微异常","2级：轻度异常","3级：中度异常","4级：重度异常"];
+    return arr[level] || "未知";
+  }
+</script>
+</body>
+</html>
+

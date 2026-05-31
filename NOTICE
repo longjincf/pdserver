@@ -1,0 +1,58 @@
+步健慧测 (PD Server)
+Copyright (C) 2025 步健慧测团队 (华南师范大学)
+
+本程序是自由软件：你可以根据自由软件基金会发布的 GNU 通用公共许可证
+(GNU General Public License) 第 3 版或（由你选择）任何更高版本的条款，
+对其进行再发布和/或修改。
+
+本程序的分发是希望它能有所帮助，但不对任何产品适销性或特定用途适用性做任何保证。
+详见 GNU 通用公共许可证了解更多细节。
+
+你应该已经随本程序收到了一份 GNU 通用公共许可证的副本。
+如果没有，请参阅 <https://www.gnu.org/licenses/>。
+
+========================================================================
+
+本软件使用了以下第三方开源组件，在此表示感谢：
+
+组件              | 协议             | 版权所有
+------------------|------------------|------------------------------------------
+Django            | BSD-3-Clause     | Django Software Foundation
+djangorestframework | BSD-3-Clause   | Tom Christie
+NumPy             | BSD-3-Clause     | NumPy Developers
+Pandas            | BSD-3-Clause     | Wes McKinney & Pandas Developers
+scikit-learn      | BSD-3-Clause     | scikit-learn Developers
+joblib            | BSD-3-Clause     | Gael Varoquaux
+Matplotlib        | PSF              | John D. Hunter & Matplotlib Developers
+PyTorch           | BSD-3-Clause     | Meta Platforms, Inc. / PyTorch Contributors
+ONNX Runtime      | MIT              | Microsoft Corporation
+OpenCV            | Apache-2.0       | OpenCV Team
+MediaPipe         | Apache-2.0       | Google LLC
+tqdm              | MPL-2.0 / MIT    | tqdm Developers
+InsightFace       | MIT              | DeepInsight
+Praat-Parselmouth | GPLv3+           | Yannick Jadoul
+
+========================================================================
+
+第三方模型文件声明：
+
+- InsightFace buffalo_l 模型 (api/models/buffalo_l/)
+  版权所有 © DeepInsight，MIT 协议发布。
+  预训练模型权重仅供非商业研究和教育用途；
+  商业使用请联系 InsightFace 获取授权。
+
+- mini_xception.onnx / emotion-ferplus-8.onnx
+  基于公开学术成果训练的表情识别模型，仅供研究用途。
+
+========================================================================
+
+数据集声明：
+
+- UCI Parkinson's Telemonitoring Dataset
+  由 Athanasios Tsanas 和 Max Little 收集发布，
+  采用 CC BY 4.0 协议（Creative Commons Attribution 4.0 International）。
+  使用时请注明数据来源：
+    Tsanas, A., Little, M.A., McSharry, P.E., Spielman, J., Ramig, L.O.
+    "Accurate telemonitoring of Parkinson's disease progression by
+    non-invasive speech tests." IEEE Transactions on Biomedical Engineering,
+    57(4):884-893, 2010.

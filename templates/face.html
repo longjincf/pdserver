@@ -1,0 +1,930 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>面部评估 - 步健慧测</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --secondary: #64748b;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+    }
+
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+
+    .tooltip .tooltip-text {
+      visibility: hidden;
+      width: 280px;
+      background-color: #334155;
+      color: #ffffff !important;
+      text-align: left;
+      border-radius: 6px;
+      padding: 10px 12px;
+      position: absolute;
+      z-index: 1002;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      font-size: 0.9rem;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    }
+
+    .tooltip .tooltip-text::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #334155 transparent transparent transparent;
+    }
+
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(180deg, var(--bg), #eef2ff);
+      color: var(--text);
+      padding-top: 70px;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      padding: 0.8rem 1rem;
+      z-index: 1000;
+    }
+
+    .nav-container {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-brand {
+      font-weight: 800;
+      font-size: 1.3rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-menu {
+      display: flex;
+      list-style: none;
+      gap: 1rem;
+    }
+
+    .nav-menu a {
+      text-decoration: none;
+      color: var(--secondary);
+      padding: 6px 10px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-menu a:hover,
+    .nav-menu a.active {
+      background: #eef2ff;
+      color: var(--primary);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      margin: 2rem auto;
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .header {
+      background: #f1f5f9;
+      color: var(--text);
+      padding: 1.5rem 2rem;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card {
+      padding: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .upload-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 3rem 1rem;
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      background: #fafafa;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-align: center;
+    }
+
+    .upload-area:hover {
+      border-color: var(--primary);
+      background: #f5f7ff;
+    }
+
+    .upload-area.hidden {
+      display: none;
+    }
+
+    .video-preview-container {
+      margin: 1rem 0;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #000;
+      display: none;
+    }
+
+    .video-preview-container.visible {
+      display: block;
+    }
+
+    .video-preview {
+      width: 100%;
+      display: block;
+    }
+
+    .video-controls {
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      background: rgba(0,0,0,0.7);
+    }
+
+    .video-control-btn {
+      background: none;
+      border: none;
+      color: white;
+      width: auto;
+      padding: 5px 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+
+    .video-control-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .file-name {
+      margin-top: 0.75rem;
+      font-style: italic;
+      color: var(--muted);
+      font-size: 0.95rem;
+      word-break: break-all;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: var(--primary);
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 0.5rem;
+    }
+
+    button:hover {
+      background: #2563eb;
+    }
+
+    button:disabled {
+      background: var(--muted);
+      cursor: not-allowed;
+    }
+
+    /* 新增保存按钮样式 */
+    .save-btn {
+      background: #10b981;
+      margin-top: 1rem;
+    }
+
+    .save-btn:hover {
+      background: #059669;
+    }
+
+    .save-btn:disabled {
+      background: #9ca3af;
+    }
+
+    .output {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      max-height: 240px;
+      overflow: auto;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .replace-actions {
+      margin-left: auto;
+    }
+
+    .replace-btn {
+      background: #fff;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+
+    .replace-btn:hover {
+      background: #f5f7ff;
+    }
+
+    /* 报表样式 */
+    .report {
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      display: none;
+    }
+    .report-title {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 1.4rem;
+      color: #1e293b;
+    }
+    .report-metrics {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-bottom: 1.5rem;
+    }
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .metric .label {
+      color: #64748b;
+      font-weight: 500;
+    }
+    .metric .value {
+      font-weight: bold;
+      color: #1e293b;
+      font-size: 1.05rem;
+    }
+    .report-grade {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .grade-label {
+      font-size: 1.1rem;
+      color: #64748b;
+    }
+    .grade-value {
+      font-size: 3.5rem;
+      font-weight: bold;
+      color: var(--primary);
+      background: #f1f5f9;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .report-description {
+      margin-top: 1rem;
+    }
+    .report-description h3 {
+      margin-bottom: 0.75rem;
+      font-size: 1.1rem;
+      color: #475569;
+    }
+    .report-description p {
+      color: #334155;
+      line-height: 1.7;
+      font-size: 1.05rem;
+    }
+
+    @media (max-width: 576px) {
+      .card {
+        padding: 1.5rem 1rem;
+      }
+      .header {
+        padding: 1.25rem 1.5rem;
+      }
+      .header h1 {
+        font-size: 1.25rem;
+      }
+      .nav-container {
+        flex-direction: column;
+        gap: 10px;
+        padding: 0.5rem;
+      }
+      .nav-menu {
+        width: 100%;
+        justify-content: space-around;
+      }
+      body {
+        padding-top: 120px;
+      }
+      .grade-value {
+        font-size: 3rem;
+        width: 100px;
+        height: 100px;
+      }
+    }
+
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    
+    .back-button:hover {
+      background: #eef2ff;
+      color: var(--primary);
+    }
+
+    /* 新增消息提示样式 */
+    .message {
+      padding: 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+      text-align: center;
+      font-weight: 500;
+    }
+    
+    .message-success {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+    
+    .message-error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    /* 语言切换按钮样式 */
+    .lang-toggle {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+    }
+
+    .lang-toggle:hover {
+      background: #2563eb;
+    }
+  </style>
+</head>
+<body>
+
+<!-- 顶部导航栏 -->
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="/" class="back-button" style="text-decoration: none; color: var(--primary); display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 8px; transition: all 0.2s ease;">
+      <i class="fas fa-arrow-left"></i>
+      <span id="nav-back">返回主页</span>
+    </a>
+ 
+    <div class="nav-brand">
+      <i class="fas fa-heart-pulse"></i>
+      <span id="nav-brand-text">步健慧测</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <button class="lang-toggle" id="langToggle">
+        <i class="fas fa-language"></i>
+        <span id="toggleText">English</span>
+      </button>
+      <ul class="nav-menu">
+        <li><a href="/face" class="active"><i class="fas fa-video"></i><span id="nav-face">面部</span></a></li>
+        <li><a href="/voice"><i class="fas fa-microphone"></i><span id="nav-voice">声音</span></a></li>
+        <li><a href="/gait"><i class="fas fa-walking"></i><span id="nav-gait">步态</span></a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="header">
+    <h1><i class="fas fa-video"></i><span id="main-title">面部评估（上传视频 mp4）</span></h1>
+  </div>
+  <div class="card">
+    <form id="form">
+      <div class="form-group">
+        <label for="video" id="video-label">选择视频文件</label>
+
+        <!-- 上传区域 -->
+        <label for="video" id="upload-area" class="upload-area">
+          <i class="fas fa-cloud-upload-alt fa-2x"></i>
+          <div>
+            <strong id="upload-text1">点击或拖拽视频到此处</strong>
+            <p id="upload-text2">支持 MP4 等常见视频格式</p>
+          </div>
+        </label>
+        <input type="file" id="video" accept="video/*" required />
+        <div id="file-name" class="file-name"></div>
+
+        <!-- 视频预览区域 -->
+        <div id="video-preview-container" class="video-preview-container">
+          <video id="video-preview" class="video-preview" controls autoplay muted playsinline>
+            <span id="video-unsupported">您的浏览器不支持视频预览</span>
+          </video>
+          <div class="video-controls">
+            <button type="button" id="play-pause-btn" class="video-control-btn">
+              <i class="fas fa-pause"></i>
+              <span id="pause-text">暂停</span>
+            </button>
+            <button type="button" id="reset-btn" class="video-control-btn">
+              <i class="fas fa-redo"></i>
+              <span id="reset-text">重置</span>
+            </button>
+            <div class="replace-actions">
+              <button type="button" id="replace-btn" class="video-control-btn replace-btn">
+                <i class="fas fa-exchange-alt"></i>
+                <span id="replace-text">更换视频</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" id="submitBtn">
+        <span id="btnText">上传并评估</span>
+        <span id="spinner" class="spinner" style="display:none;"></span>
+      </button>
+
+      <!-- 新增保存数据按钮 -->
+      <button type="button" id="saveDataBtn" class="save-btn" disabled>
+        <i class="fas fa-save"></i>
+        <span id="saveBtnText">保存数据</span>
+        <span id="saveSpinner" class="spinner" style="display:none;"></span>
+      </button>
+    </form>
+
+    <!-- 保存结果消息 -->
+    <div id="save-message" style="display: none;"></div>
+
+    <!-- 原始 JSON 输出（隐藏） -->
+    <div id="out" class="output" style="display:none;"></div>
+
+    <!-- 报表输出 -->
+    <div id="report" class="report">
+      <h2 class="report-title" id="report-title">面部评估结果</h2>
+      <div class="report-metrics">
+        <div class="metric">
+          <span class="label" id="blink-label">眨眼频率（次/分钟）</span>
+          <span class="value" id="blink_rate">0</span>
+        </div>
+        <div class="metric">
+          <span class="label" id="emotion-label">情绪熵</span>
+          <span class="value" id="emotion_entropy">0</span>
+        </div>
+        <div class="metric">
+          <span class="label" id="lips-label">嘴唇张开比例</span>
+          <span class="value" id="lips_apart_ratio">0</span>
+        </div>
+      </div>
+      <div class="report-grade">
+        <div class="grade-label" id="grade-label">评估等级</div>
+        <div class="grade-value" id="grade">0</div>
+      </div>
+      <!-- 修改报表描述部分的HTML (在report-description内) -->
+      <div class="report-description">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <h3 style="margin: 0; padding: 0;" id="description-title">结果描述</h3>
+          <div class="tooltip" style="margin-top: 2px;">
+            <i class="fas fa-question-circle" style="color: var(--primary); cursor: help; font-size: 1rem; vertical-align: middle;"></i>
+            <div class="tooltip-text">
+              <p style="margin: 5px 0; color: #ffffff;" id="tooltip-0">0级：正常的面部表情</p>
+              <p style="margin: 5px 0; color: #ffffff;" id="tooltip-1">1级：仅有瞬目频率的减少</p>
+              <p style="margin: 5px 0; color: #ffffff;" id="tooltip-2">2级：除瞬目频率减少外，下面部表情也减少</p>
+              <p style="margin: 5px 0; color: #ffffff;" id="tooltip-3">3级：面部表情减少，且嘴唇在不说话时偶尔张开</p>
+              <p style="margin: 5px 0; color: #ffffff;" id="tooltip-4">4级：面部表情显著减少，且嘴唇在不说话时经常张开</p>
+            </div>
+          </div>
+        </div>
+        <p id="description"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const translations = {
+    'zh-CN': {
+      'nav-back': '返回主页',
+      'nav-brand-text': '步健慧测',
+      'toggleText': 'English',
+      'nav-face': '面部',
+      'nav-voice': '声音',
+      'nav-gait': '步态',
+      'main-title': '面部评估（上传视频 mp4）',
+      'video-label': '选择视频文件',
+      'upload-text1': '点击或拖拽视频到此处',
+      'upload-text2': '支持 MP4 等常见视频格式',
+      'video-unsupported': '您的浏览器不支持视频预览',
+      'pause-text': '暂停',
+      'reset-text': '重置',
+      'replace-text': '更换视频',
+      'btnText': '上传并评估',
+      'saveBtnText': '保存数据',
+      'report-title': '面部评估结果',
+      'blink-label': '眨眼频率（次/分钟）',
+      'emotion-label': '情绪熵',
+      'lips-label': '嘴唇张开比例',
+      'grade-label': '评估等级',
+      'description-title': '结果描述',
+      'tooltip-0': '0级：正常的面部表情',
+      'tooltip-1': '1级：仅有瞬目频率的减少',
+      'tooltip-2': '2级：除瞬目频率减少外，下面部表情也减少',
+      'tooltip-3': '3级：面部表情减少，且嘴唇在不说话时偶尔张开',
+      'tooltip-4': '4级：面部表情显著减少，且嘴唇在不说话时经常张开'
+    },
+    'en-US': {
+      'nav-back': 'Back to Home',
+      'nav-brand-text': 'StepHealth',
+      'toggleText': '中文',
+      'nav-face': 'Face',
+      'nav-voice': 'Voice',
+      'nav-gait': 'Gait',
+      'main-title': 'Facial Assessment (Upload MP4 Video)',
+      'video-label': 'Select Video File',
+      'upload-text1': 'Click or Drag Video Here',
+      'upload-text2': 'Supports MP4 and other common video formats',
+      'video-unsupported': 'Your browser does not support video preview',
+      'pause-text': 'Pause',
+      'reset-text': 'Reset',
+      'replace-text': 'Replace Video',
+      'btnText': 'Upload and Assess',
+      'saveBtnText': 'Save Data',
+      'report-title': 'Facial Assessment Results',
+      'blink-label': 'Blink Rate (times/min)',
+      'emotion-label': 'Emotion Entropy',
+      'lips-label': 'Lips Apart Ratio',
+      'grade-label': 'Assessment Grade',
+      'description-title': 'Result Description',
+      'tooltip-0': 'Grade 0: Normal facial expressions',
+      'tooltip-1': 'Grade 1: Only reduced blink frequency',
+      'tooltip-2': 'Grade 2: Reduced blink frequency and lower facial expressions',
+      'tooltip-3': 'Grade 3: Reduced facial expressions with occasional lip parting when not speaking',
+      'tooltip-4': 'Grade 4: Significantly reduced facial expressions with frequent lip parting when not speaking'
+    }
+  };
+
+  let currentLang = 'zh-CN';
+  const langToggle = document.getElementById('langToggle');
+  const toggleText = document.getElementById('toggleText');
+
+  function toggleLanguage() {
+    currentLang = currentLang === 'zh-CN' ? 'en-US' : 'zh-CN';
+    toggleText.textContent = translations[currentLang]['toggleText'];
+    
+    for (const [key, value] of Object.entries(translations[currentLang])) {
+      const element = document.getElementById(key);
+      if (element) {
+        element.textContent = value;
+      }
+    }
+  }
+
+  langToggle.addEventListener('click', toggleLanguage);
+
+  // 原有的JavaScript代码保持不变
+  const form = document.getElementById('form');
+  const videoInput = document.getElementById('video');
+  const uploadArea = document.getElementById('upload-area');
+  const fileNameEl = document.getElementById('file-name');
+  const submitBtn = document.getElementById('submitBtn');
+  const btnText = document.getElementById('btnText');
+  const spinner = document.getElementById('spinner');
+  const outEl = document.getElementById('out');
+  const reportEl = document.getElementById('report');
+  const videoPreviewContainer = document.getElementById('video-preview-container');
+  const videoPreview = document.getElementById('video-preview');
+  const playPauseBtn = document.getElementById('play-pause-btn');
+  const resetBtn = document.getElementById('reset-btn');
+  const replaceBtn = document.getElementById('replace-btn');
+  const saveDataBtn = document.getElementById('saveDataBtn');
+  const saveBtnText = document.getElementById('saveBtnText');
+  const saveSpinner = document.getElementById('saveSpinner');
+  const saveMessageEl = document.getElementById('save-message');
+
+  // 报表字段
+  const blinkRateEl = document.getElementById('blink_rate');
+  const emotionEntropyEl = document.getElementById('emotion_entropy');
+  const lipsApartRatioEl = document.getElementById('lips_apart_ratio');
+  const gradeEl = document.getElementById('grade');
+  const descriptionEl = document.getElementById('description');
+
+  let currentVideoURL = null;
+  let currentAssessmentData = null;
+
+  videoInput.addEventListener('change', handleFileSelect);
+
+  uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.style.borderColor = 'var(--primary)';
+    uploadArea.style.background = '#ede9fe';
+  });
+
+  uploadArea.addEventListener('dragleave', () => {
+    uploadArea.style.borderColor = 'var(--border)';
+    uploadArea.style.background = '#fafafa';
+  });
+
+  uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.style.borderColor = 'var(--border)';
+    uploadArea.style.background = '#fafafa';
+
+    if (e.dataTransfer.files.length) {
+      videoInput.files = e.dataTransfer.files;
+      handleFileSelect({ target: videoInput });
+    }
+  });
+
+  playPauseBtn.addEventListener('click', () => {
+    if (videoPreview.paused) {
+      videoPreview.play();
+      playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span id="pause-text">暂停</span>';
+    } else {
+      videoPreview.pause();
+      playPauseBtn.innerHTML = '<i class="fas fa-play"></i><span id="pause-text">播放</span>';
+    }
+  });
+
+  resetBtn.addEventListener('click', () => {
+    videoPreview.pause();
+    videoPreview.currentTime = 0;
+    playPauseBtn.innerHTML = '<i class="fas fa-play"></i><span id="pause-text">播放</span>';
+  });
+
+  replaceBtn.addEventListener('click', () => {
+    if (currentVideoURL) {
+      URL.revokeObjectURL(currentVideoURL);
+      currentVideoURL = null;
+    }
+    videoInput.value = '';
+    fileNameEl.textContent = '';
+    videoPreviewContainer.classList.remove('visible');
+    uploadArea.classList.remove('hidden');
+    reportEl.style.display = 'none'; // 隐藏报表
+    saveDataBtn.disabled = true;
+    saveMessageEl.style.display = 'none';
+  });
+
+  videoPreview.addEventListener('ended', () => {
+    playPauseBtn.innerHTML = '<i class="fas fa-play"></i><span id="pause-text">播放</span>';
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const file = videoInput.files[0];
+    if (!file) return;
+
+    submitBtn.disabled = true;
+    btnText.textContent = '正在处理...';
+    spinner.style.display = 'inline-block';
+    outEl.textContent = '上传中，请稍候...';
+    reportEl.style.display = 'none'; // 隐藏报表
+    saveDataBtn.disabled = true;
+    saveMessageEl.style.display = 'none';
+
+    const f = new FormData();
+    f.append('video', file);
+
+    try {
+      const res = await fetch('/api/face_predict', { method: 'POST', body: f });
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+      const data = await res.json();
+
+      // 填充报表
+      blinkRateEl.textContent = data.blink_rate_per_min;
+      emotionEntropyEl.textContent = data.emotion_entropy;
+      lipsApartRatioEl.textContent = data.lips_apart_ratio;
+      gradeEl.textContent = data.grade;
+      descriptionEl.textContent = data.description;
+
+      // 存储当前评估数据用于保存
+      currentAssessmentData = {
+        assessment_type: 'face',
+        features: {
+          blink_rate_per_min: data.blink_rate_per_min,
+          emotion_entropy: data.emotion_entropy,
+          lips_apart_ratio: data.lips_apart_ratio
+        },
+        prediction: {
+          grade: data.grade,
+          description: data.description
+        },
+        severity_bucket: data.grade
+      };
+
+      // 显示报表
+      reportEl.style.display = 'block';
+      // 启用保存按钮
+      saveDataBtn.disabled = false;
+
+    } catch (err) {
+      outEl.textContent = '错误：' + err.message;
+      outEl.style.display = 'block';
+    } finally {
+      submitBtn.disabled = false;
+      btnText.textContent = '上传并评估';
+      spinner.style.display = 'none';
+    }
+  });
+
+  // 保存数据按钮点击事件
+  saveDataBtn.addEventListener('click', async () => {
+    if (!currentAssessmentData) {
+      showMessage('没有可保存的数据，请先进行评估', 'error');
+      return;
+    }
+
+    // 显示保存加载状态
+    saveDataBtn.disabled = true;
+    saveBtnText.textContent = '保存中...';
+    saveSpinner.style.display = 'inline-block';
+    saveMessageEl.style.display = 'none';
+
+    try {
+      const res = await fetch('/api/save_data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(currentAssessmentData)
+      });
+
+      if (!res.ok) throw new Error(`保存失败: ${res.status}`);
+
+      const result = await res.json();
+
+      if (result.success) {
+        showMessage(`数据保存成功！ID: ${result.id}`, 'success');
+      } else {
+        throw new Error(result.error || '保存失败');
+      }
+
+    } catch (err) {
+      showMessage('保存失败: ' + err.message, 'error');
+    } finally {
+      // 恢复保存按钮状态
+      saveDataBtn.disabled = false;
+      saveBtnText.textContent = '保存数据';
+      saveSpinner.style.display = 'none';
+    }
+  });
+
+  // 显示消息函数
+  function showMessage(message, type) {
+    saveMessageEl.textContent = message;
+    saveMessageEl.className = `message message-${type}`;
+    saveMessageEl.style.display = 'block';
+    
+    // 5秒后自动隐藏成功消息
+    if (type === 'success') {
+      setTimeout(() => {
+        saveMessageEl.style.display = 'none';
+      }, 5000);
+    }
+  }
+
+  function handleFileSelect(e) {
+    const file = e.target.files[0];
+    if (!file) {
+      fileNameEl.textContent = '';
+      videoPreviewContainer.classList.remove('visible');
+      uploadArea.classList.remove('hidden');
+      reportEl.style.display = 'none'; // 隐藏报表
+      saveDataBtn.disabled = true;
+      saveMessageEl.style.display = 'none';
+      return;
+    }
+
+    fileNameEl.textContent = file.name;
+
+    if (file.type.indexOf('video/') === 0) {
+      if (currentVideoURL) URL.revokeObjectURL(currentVideoURL);
+
+      currentVideoURL = URL.createObjectURL(file);
+      videoPreview.src = currentVideoURL;
+
+      uploadArea.classList.add('hidden');
+      videoPreviewContainer.classList.add('visible');
+
+      videoPreview.play().then(() => {
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i><span id="pause-text">暂停</span>';
+      }).catch(() => {
+        playPauseBtn.innerHTML = '<i class="fas fa-play"></i><span id="pause-text">播放</span>';
+      });
+    } else {
+      alert('请选择视频文件');
+      videoInput.value = '';
+      fileNameEl.textContent = '';
+    }
+  }
+</script>
+</body>
+</html>
+

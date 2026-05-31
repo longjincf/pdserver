@@ -1,0 +1,83 @@
+.
+├── api
+│   ├── apps.py
+│   ├── feature_extractor_face.py
+│   ├── feature_extractor_gait.py
+│   ├── feature_extractor.py
+│   ├── gait_modeling.py
+│   ├── __init__.py
+│   ├── management
+│   │   ├── commands
+│   │   │   ├── __init__.py
+│   │   │   ├── __pycache__
+│   │   │   │   ├── __init__.cpython-312.pyc
+│   │   │   │   ├── train_gait.cpython-312.pyc
+│   │   │   │   └── train_updrs.cpython-312.pyc
+│   │   │   ├── train_gait.py
+│   │   │   └── train_updrs.py
+│   │   ├── __init__.py
+│   │   └── __pycache__
+│   │       └── __init__.cpython-312.pyc
+│   ├── modeling.py
+│   ├── models
+│   │   ├── buffalo_l
+│   │   │   ├── 2d106det.onnx
+│   │   │   └── det_10g.onnx
+│   │   ├── emotion-ferplus-8.onnx
+│   │   └── mini_xception.onnx
+│   ├── __pycache__
+│   │   ├── apps.cpython-310.pyc
+│   │   ├── apps.cpython-312.pyc
+│   │   ├── feature_extractor.cpython-310.pyc
+│   │   ├── feature_extractor.cpython-312.pyc
+│   │   ├── feature_extractor_face.cpython-310.pyc
+│   │   ├── feature_extractor_face.cpython-312.pyc
+│   │   ├── feature_extractor_gait.cpython-310.pyc
+│   │   ├── feature_extractor_gait.cpython-312.pyc
+│   │   ├── gait_modeling.cpython-310.pyc
+│   │   ├── gait_modeling.cpython-312.pyc
+│   │   ├── __init__.cpython-310.pyc
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── modeling.cpython-310.pyc
+│   │   ├── modeling.cpython-312.pyc
+│   │   ├── symptoms.cpython-312.pyc
+│   │   ├── urls.cpython-310.pyc
+│   │   ├── urls.cpython-312.pyc
+│   │   ├── views.cpython-310.pyc
+│   │   └── views.cpython-312.pyc
+│   ├── symptoms.py
+│   ├── urls.py
+│   └── views.py
+├── db.sqlite3
+├── manage.py
+├── model
+│   ├── gait_model.pkl
+│   └── model.pkl
+├── pdserver
+│   ├── asgi.py
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-310.pyc
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── settings.cpython-310.pyc
+│   │   ├── settings.cpython-312.pyc
+│   │   ├── urls.cpython-310.pyc
+│   │   ├── urls.cpython-312.pyc
+│   │   ├── wsgi.cpython-310.pyc
+│   │   └── wsgi.cpython-312.pyc
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── README.md
+├── requirements.txt
+├── setting.py
+├── static
+│   └── favicon.ico
+├── templates
+│   ├── face.html
+│   ├── gait.html
+│   ├── index.html
+│   └── voice.html
+└── tree.txt
+
+13 directories, 67 files

@@ -1,0 +1,1066 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>声音评估 - 步慧健测</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --secondary: #64748b;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(180deg, var(--bg), #eef2ff);
+      color: var(--text);
+      padding-top: 70px;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* 顶部导航栏 */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      padding: 0.8rem 1rem;
+      z-index: 1000;
+    }
+
+    .nav-container {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-brand {
+      font-weight: 800;
+      font-size: 1.3rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-menu {
+      display: flex;
+      list-style: none;
+      gap: 1rem;
+    }
+
+    .nav-menu a {
+      text-decoration: none;
+      color: var(--secondary);
+      padding: 6px 10px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-menu a:hover,
+    .nav-menu a.active {
+      background: #eef2ff;
+      color: var(--primary);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      margin: 2rem auto;
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .header {
+      background: #f1f5f9;
+      color: var(--text);
+      padding: 1.5rem 2rem;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card {
+      padding: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .upload-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 3rem 1rem;
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      background: #fafafa;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .upload-area:hover {
+      border-color: var(--primary);
+      background: #f5f7ff;
+    }
+
+    .file-name {
+      margin-top: 0.75rem;
+      font-style: italic;
+      color: var(--muted);
+      font-size: 0.95rem;
+      word-break: break-all;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: var(--primary);
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 0.5rem;
+    }
+
+    button:hover {
+      background: #2563eb;
+    }
+
+    button:disabled {
+      background: var(--muted);
+      cursor: not-allowed;
+    }
+
+    /* 新增保存按钮样式 */
+    .save-btn {
+      background: #10b981;
+      margin-top: 1rem;
+    }
+
+    .save-btn:hover {
+      background: #059669;
+    }
+
+    .save-btn:disabled {
+      background: #9ca3af;
+    }
+
+    .output {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      max-height: 240px;
+      overflow: auto;
+      font-size: 0.9rem;
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .info-section {
+      margin-top: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .info-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.2rem;
+    }
+
+    .info-card h3 {
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+      color: var(--text);
+    }
+
+    .info-card button {
+      background: white;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+      margin-bottom: 1rem;
+    }
+
+    .info-card button:hover {
+      background: #f5f7ff;
+    }
+
+    /* 通用报表样式 */
+    .report {
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      display: none;
+    }
+
+    .report-title {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 1.4rem;
+      color: #1e293b;
+    }
+
+    .report-section {
+      margin-bottom: 1.8rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .report-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .report-section h3 {
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+      color: #475569;
+    }
+
+    .report-metrics {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .metric:last-child {
+      border-bottom: none;
+    }
+
+    .metric .label {
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .metric .value {
+      font-weight: bold;
+      color: #1e293b;
+      font-size: 1.05rem;
+    }
+
+    .report-description {
+      margin-top: 1rem;
+    }
+
+    .report-description h3 {
+      margin-bottom: 0.75rem;
+      font-size: 1.1rem;
+      color: #475569;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .report-description p {
+      color: #334155;
+      line-height: 1.7;
+      font-size: 1.05rem;
+    }
+
+    /* 信息报表样式 */
+    .info-report {
+      display: none;
+      margin-top: 1rem;
+    }
+
+    .status-normal {
+      color: #10b981; /* 绿色表示正常 */
+    }
+
+    .status-error {
+      color: #ef4444; /* 红色表示错误 */
+    }
+
+    /* 提示框样式 */
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      margin-top: 2px;
+    }
+
+    .tooltip .tooltip-text {
+      visibility: hidden;
+      width: 280px;
+      background-color: #334155;
+      color: #ffffff !important;
+      text-align: left;
+      border-radius: 6px;
+      padding: 10px 12px;
+      position: absolute;
+      z-index: 1002;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      font-size: 0.9rem;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    }
+
+    .tooltip .tooltip-text::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #334155 transparent transparent transparent;
+    }
+
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    @media (max-width: 576px) {
+      .card {
+        padding: 1.5rem 1rem;
+      }
+      .header {
+        padding: 1.25rem 1.5rem;
+      }
+      .header h1 {
+        font-size: 1.25rem;
+      }
+      .nav-container {
+        flex-direction: column;
+        gap: 10px;
+        padding: 0.5rem;
+      }
+      .nav-menu {
+        width: 100%;
+        justify-content: space-around;
+      }
+      body {
+        padding-top: 120px;
+      }
+    }
+    
+    .back-button:hover {
+      background: #eef2ff;
+      color: var(--primary);
+    }
+
+    /* 新增消息提示样式 */
+    .message {
+      padding: 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+      text-align: center;
+      font-weight: 500;
+    }
+    
+    .message-success {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+    
+    .message-error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    /* 语言切换按钮样式 */
+    .lang-toggle {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+    }
+
+    .lang-toggle:hover {
+      background: #2563eb;
+    }
+  </style>
+</head>
+<body>
+
+<!-- 顶部导航栏 -->
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="/" class="back-button" style="text-decoration: none; color: var(--primary); display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 8px; transition: all 0.2s ease;">
+      <i class="fas fa-arrow-left"></i>
+      <span id="nav-back">返回主页</span>
+    </a>
+ 
+    <div class="nav-brand">
+      <i class="fas fa-heart-pulse"></i>
+      <span id="nav-brand-text">步健慧测</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <button class="lang-toggle" id="langToggle">
+        <i class="fas fa-language"></i>
+        <span id="toggleText">English</span>
+      </button>
+      <ul class="nav-menu">
+        <li><a href="/face"><i class="fas fa-video"></i><span id="nav-face">面部</span></a></li>
+        <li><a href="/voice" class="active"><i class="fas fa-microphone"></i><span id="nav-voice">声音</span></a></li>
+        <li><a href="/gait"><i class="fas fa-walking"></i><span id="nav-gait">步态</span></a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="header">
+    <h1><i class="fas fa-microphone"></i><span id="main-title">声音评估（上传音频 wav）</span></h1>
+  </div>
+  <div class="card">
+    <form id="form">
+      <div class="form-group">
+        <label for="audio" id="audio-label">选择音频文件</label>
+
+        <!-- 上传区域 -->
+        <label for="audio" class="upload-area">
+          <i class="fas fa-cloud-upload-alt fa-2x"></i>
+          <div>
+            <strong id="upload-text1">点击或拖拽音频到此处</strong>
+            <p id="upload-text2">支持 WAV 等常见音频格式</p>
+          </div>
+        </label>
+        <input type="file" id="audio" accept=".wav" required />
+        <div id="file-name" class="file-name"></div>
+      </div>
+
+      <button type="submit" id="submitBtn">
+        <span id="btnText">上传并评估</span>
+        <span id="spinner" class="spinner" style="display:none;"></span>
+      </button>
+
+      <!-- 新增保存数据按钮 -->
+      <button type="button" id="saveDataBtn" class="save-btn" disabled>
+        <i class="fas fa-save"></i>
+        <span id="saveBtnText">保存数据</span>
+        <span id="saveSpinner" class="spinner" style="display:none;"></span>
+      </button>
+    </form>
+
+    <!-- 评估结果报表 -->
+    <div id="assessment-report" class="report">
+      <h2 class="report-title" id="report-title">声音评估结果</h2>
+
+      <!-- 特征提取部分 -->
+      <div class="report-section">
+        <h3 id="features-title">Features (特征提取)</h3>
+        <div class="report-metrics">
+          <div class="metric">
+            <span class="label" id="jitter-label">jitter local percent</span>
+            <span class="value" id="jitter-local-percent">0</span>
+          </div>
+          <div class="metric">
+            <span class="label" id="shimmer-label">shimmer local percent</span>
+            <span class="value" id="shimmer-local-percent">0</span>
+          </div>
+          <div class="metric">
+            <span class="label" id="hnr-label">hnr db</span>
+            <span class="value" id="hnr-db">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 预测结果部分 -->
+      <div class="report-section">
+        <h3 id="prediction-title">Prediction (预测结果)</h3>
+        <div class="report-metrics">
+          <div class="metric">
+            <span class="label" id="updrs-label">total UPDRS</span>
+            <span class="value" id="total-updrs">0</span>
+          </div>
+          <div class="metric">
+            <span class="label" id="severity-label">severity bucket</span>
+            <span class="value" id="severity-bucket">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="report-description">
+        <h3>
+          <span id="description-title">结果描述</span>
+          <div class="tooltip">
+            <i class="fas fa-question-circle" style="color: var(--primary); cursor: help; font-size: 1rem; vertical-align: middle;"></i>
+            <div class="tooltip-text">
+              <p style="margin: 5px 0; color: #ffffff;" id="tooltip-0">0级：正常，语音特征无异常</p>
+              <p style="margin: 5px 0; color: #ffffff;" id="tooltip-1">1级：轻微，仅有轻微的语音抖动</p>
+              <p style="margin: 5px 0; color: #ffffff;" id="tooltip-2">2级：轻度，语音抖动明显，谐噪比略降</p>
+              <p style="margin: 5px 0; color: #ffffff;" id="tooltip-3">3级：中度，语音特征显著异常，声音嘶哑</p>
+              <p style="margin: 5px 0; color: #ffffff;" id="tooltip-4">4级：重度，语音严重受损，发音困难</p>
+            </div>
+          </div>
+        </h3>
+        <p id="description"></p>
+      </div>
+    </div>
+
+    <!-- 保存结果消息 -->
+    <div id="save-message" style="display: none;"></div>
+
+    <div class="info-section">
+      <!-- 健康检查信息卡 -->
+      <div class="info-card">
+        <h3 id="health-title">健康检查</h3>
+        <button id="ping">
+          <i class="fas fa-heartbeat"></i>
+          <span id="health-btn-text">查看健康状态</span>
+        </button>
+
+        <!-- 健康检查报表 -->
+        <div id="health-report" class="info-report">
+          <div class="report-metrics">
+            <div class="metric">
+              <span class="label" id="service-label">服务状态</span>
+              <span class="value" id="service-status">-</span>
+            </div>
+            <div class="metric">
+              <span class="label" id="model-label">模型就绪状态</span>
+              <span class="value" id="model-ready">-</span>
+            </div>
+            <div class="metric">
+              <span class="label" id="time-label">检查时间</span>
+              <span class="value" id="check-time">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 健康检查错误信息 -->
+        <div id="health-error" class="output" style="display:none;"></div>
+      </div>
+
+      <!-- 模型信息卡 -->
+      <div class="info-card">
+        <h3 id="model-title">模型信息</h3>
+        <button id="info">
+          <i class="fas fa-info-circle"></i>
+          <span id="model-btn-text">检查模型信息</span>
+        </button>
+
+        <!-- 模型信息报表 -->
+        <div id="model-report" class="info-report">
+          <div class="report-section">
+            <h3 id="voice-model-title">声音模型信息</h3>
+            <div class="report-metrics">
+              <div class="metric">
+                <span class="label" id="mae-label">平均绝对误差 (MAE)</span>
+                <span class="value" id="model-mae">-</span>
+              </div>
+              <div class="metric">
+                <span class="label" id="gait-label">步态模型就绪</span>
+                <span class="value" id="gait-model-ready">-</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="report-section">
+            <h3 id="features-column-title">特征列</h3>
+            <div class="report-metrics" id="feature-columns-container">
+              <!-- 特征列将通过JS动态生成 -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 模型信息错误信息 -->
+        <div id="model-error" class="output" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const translations = {
+    'zh-CN': {
+      'nav-back': '返回主页',
+      'nav-brand-text': '步健慧测',
+      'toggleText': 'English',
+      'nav-face': '面部',
+      'nav-voice': '声音',
+      'nav-gait': '步态',
+      'main-title': '声音评估（上传音频 wav）',
+      'audio-label': '选择音频文件',
+      'upload-text1': '点击或拖拽音频到此处',
+      'upload-text2': '支持 WAV 等常见音频格式',
+      'btnText': '上传并评估',
+      'saveBtnText': '保存数据',
+      'report-title': '声音评估结果',
+      'features-title': 'Features (特征提取)',
+      'jitter-label': 'jitter local percent',
+      'shimmer-label': 'shimmer local percent',
+      'hnr-label': 'hnr db',
+      'prediction-title': 'Prediction (预测结果)',
+      'updrs-label': 'total UPDRS',
+      'severity-label': 'severity bucket',
+      'description-title': '结果描述',
+      'tooltip-0': '0级：正常，语音特征无异常',
+      'tooltip-1': '1级：轻微，仅有轻微的语音抖动',
+      'tooltip-2': '2级：轻度，语音抖动明显，谐噪比略降',
+      'tooltip-3': '3级：中度，语音特征显著异常，声音嘶哑',
+      'tooltip-4': '4级：重度，语音严重受损，发音困难',
+      'health-title': '健康检查',
+      'health-btn-text': '查看健康状态',
+      'service-label': '服务状态',
+      'model-label': '模型就绪状态',
+      'time-label': '检查时间',
+      'model-title': '模型信息',
+      'model-btn-text': '检查模型信息',
+      'voice-model-title': '声音模型信息',
+      'mae-label': '平均绝对误差 (MAE)',
+      'gait-label': '步态模型就绪',
+      'features-column-title': '特征列'
+    },
+    'en-US': {
+      'nav-back': 'Back to Home',
+      'nav-brand-text': 'StepHealth',
+      'toggleText': '中文',
+      'nav-face': 'Face',
+      'nav-voice': 'Voice',
+      'nav-gait': 'Gait',
+      'main-title': 'Voice Assessment (Upload WAV Audio)',
+      'audio-label': 'Select Audio File',
+      'upload-text1': 'Click or Drag Audio Here',
+      'upload-text2': 'Supports WAV and other common audio formats',
+      'btnText': 'Upload and Assess',
+      'saveBtnText': 'Save Data',
+      'report-title': 'Voice Assessment Results',
+      'features-title': 'Features (Feature Extraction)',
+      'jitter-label': 'jitter local percent',
+      'shimmer-label': 'shimmer local percent',
+      'hnr-label': 'hnr db',
+      'prediction-title': 'Prediction (Prediction Results)',
+      'updrs-label': 'total UPDRS',
+      'severity-label': 'severity bucket',
+      'description-title': 'Result Description',
+      'tooltip-0': 'Grade 0: Normal, no voice feature abnormalities',
+      'tooltip-1': 'Grade 1: Mild, only slight voice jitter',
+      'tooltip-2': 'Grade 2: Light, obvious voice jitter, slightly reduced harmonic-to-noise ratio',
+      'tooltip-3': 'Grade 3: Moderate, significant voice feature abnormalities, hoarseness',
+      'tooltip-4': 'Grade 4: Severe, severely impaired voice, difficulty speaking',
+      'health-title': 'Health Check',
+      'health-btn-text': 'Check Health Status',
+      'service-label': 'Service Status',
+      'model-label': 'Model Ready Status',
+      'time-label': 'Check Time',
+      'model-title': 'Model Information',
+      'model-btn-text': 'Check Model Info',
+      'voice-model-title': 'Voice Model Information',
+      'mae-label': 'Mean Absolute Error (MAE)',
+      'gait-label': 'Gait Model Ready',
+      'features-column-title': 'Feature Columns'
+    }
+  };
+
+  let currentLang = 'zh-CN';
+  const langToggle = document.getElementById('langToggle');
+  const toggleText = document.getElementById('toggleText');
+
+  function toggleLanguage() {
+    currentLang = currentLang === 'zh-CN' ? 'en-US' : 'zh-CN';
+    toggleText.textContent = translations[currentLang]['toggleText'];
+    
+    for (const [key, value] of Object.entries(translations[currentLang])) {
+      const element = document.getElementById(key);
+      if (element) {
+        element.textContent = value;
+      }
+    }
+  }
+
+  langToggle.addEventListener('click', toggleLanguage);
+
+  // 原有的JavaScript代码保持不变
+  const $ = (id) => document.getElementById(id);
+
+  const form = $('form');
+  const audioInput = $('audio');
+  const fileNameEl = $('file-name');
+  const submitBtn = $('submitBtn');
+  const btnText = $('btnText');
+  const spinner = $('spinner');
+  const assessmentReportEl = $('assessment-report');
+  const saveDataBtn = $('saveDataBtn');
+  const saveBtnText = $('saveBtnText');
+  const saveSpinner = $('saveSpinner');
+  const saveMessageEl = $('save-message');
+
+  // 评估报表字段
+  const jitterLocalPercentEl = $('jitter-local-percent');
+  const shimmerLocalPercentEl = $('shimmer-local-percent');
+  const hnrDbEl = $('hnr-db');
+  const totalUpdrsEl = $('total-updrs');
+  const severityBucketEl = $('severity-bucket');
+  const descriptionEl = $('description');
+
+  // 存储当前评估数据
+  let currentAssessmentData = null;
+
+  // 显示选中的文件名
+  audioInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      fileNameEl.textContent = file.name;
+    } else {
+      fileNameEl.textContent = '';
+    }
+  });
+
+  // 处理文件拖放
+  const uploadArea = document.querySelector('.upload-area');
+
+  uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.style.borderColor = 'var(--primary)';
+    uploadArea.style.background = '#ede9fe';
+  });
+
+  uploadArea.addEventListener('dragleave', () => {
+    uploadArea.style.borderColor = 'var(--border)';
+    uploadArea.style.background = '#fafafa';
+  });
+
+  uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.style.borderColor = 'var(--border)';
+    uploadArea.style.background = '#fafafa';
+
+    if (e.dataTransfer.files.length) {
+      audioInput.files = e.dataTransfer.files;
+      fileNameEl.textContent = audioInput.files[0].name;
+    }
+  });
+
+  // 表单提交处理（评估功能）
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const file = audioInput.files[0];
+    if (!file) return;
+
+    // 显示加载状态
+    submitBtn.disabled = true;
+    btnText.textContent = '正在处理...';
+    spinner.style.display = 'inline-block';
+    assessmentReportEl.style.display = 'none';
+    saveDataBtn.disabled = true;
+    saveMessageEl.style.display = 'none';
+
+    const formData = new FormData();
+    formData.append('audio', file);
+
+    try {
+      const res = await fetch('/api/predict', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+      // 解析JSON（严格匹配提供的结构）
+      const data = await res.json();
+
+      // 填充评估报表数据（严格匹配嵌套结构）
+      if (data.features) {
+        jitterLocalPercentEl.textContent = data.features.jitter_local_percent !== undefined ?
+                data.features.jitter_local_percent.toFixed(4) : 'N/A';
+
+        shimmerLocalPercentEl.textContent = data.features.shimmer_local_percent !== undefined ?
+                data.features.shimmer_local_percent.toFixed(4) : 'N/A';
+
+        hnrDbEl.textContent = data.features.hnr_db !== undefined ?
+                data.features.hnr_db.toFixed(3) : 'N/A';
+      }
+
+      if (data.prediction) {
+        totalUpdrsEl.textContent = data.prediction.total_UPDRS !== undefined ?
+                data.prediction.total_UPDRS.toFixed(2) : 'N/A';
+
+        severityBucketEl.textContent = data.prediction.severity_bucket !== undefined ?
+                data.prediction.severity_bucket : 'N/A';
+
+        // 根据严重程度生成描述
+        const severity = data.prediction.severity_bucket;
+        const descriptions = [
+          "0级：正常，语音特征无异常",
+          "1级：轻微，仅有轻微的语音抖动",
+          "2级：轻度，语音抖动明显，谐噪比略降",
+          "3级：中度，语音特征显著异常，声音嘶哑",
+          "4级：重度，语音严重受损，发音困难"
+        ];
+        descriptionEl.textContent = severity !== undefined && severity >= 0 && severity <= 4
+                ? descriptions[severity]
+                : "无法确定严重程度";
+      }
+
+      // 存储当前评估数据用于保存
+      currentAssessmentData = {
+        assessment_type: 'voice',
+        features: data.features,
+        prediction: data.prediction,
+        severity_bucket: data.prediction.severity_bucket,
+        total_updrs: data.prediction.total_UPDRS
+      };
+
+      // 显示评估报表
+      assessmentReportEl.style.display = 'block';
+      // 启用保存按钮
+      saveDataBtn.disabled = false;
+
+    } catch (err) {
+      // 显示错误信息
+      const errorEl = document.createElement('div');
+      errorEl.className = 'output';
+      errorEl.textContent = '错误：' + err.message;
+      errorEl.style.display = 'block';
+
+      // 插入到表单下方
+      form.parentNode.insertBefore(errorEl, form.nextSibling);
+
+      // 3秒后自动移除错误信息
+      setTimeout(() => {
+        if (errorEl.parentNode) {
+          errorEl.parentNode.removeChild(errorEl);
+        }
+      }, 3000);
+    } finally {
+      // 恢复按钮状态
+      submitBtn.disabled = false;
+      btnText.textContent = '上传并评估';
+      spinner.style.display = 'none';
+    }
+  });
+
+  // 保存数据按钮点击事件
+  saveDataBtn.addEventListener('click', async () => {
+    if (!currentAssessmentData) {
+      showMessage('没有可保存的数据，请先进行评估', 'error');
+      return;
+    }
+
+    // 显示保存加载状态
+    saveDataBtn.disabled = true;
+    saveBtnText.textContent = '保存中...';
+    saveSpinner.style.display = 'inline-block';
+    saveMessageEl.style.display = 'none';
+
+    try {
+      const res = await fetch('/api/save_data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(currentAssessmentData)
+      });
+
+      if (!res.ok) throw new Error(`保存失败: ${res.status}`);
+
+      const result = await res.json();
+
+      if (result.success) {
+        showMessage(`数据保存成功！ID: ${result.id}`, 'success');
+      } else {
+        throw new Error(result.error || '保存失败');
+      }
+
+    } catch (err) {
+      showMessage('保存失败: ' + err.message, 'error');
+    } finally {
+      // 恢复保存按钮状态
+      saveDataBtn.disabled = false;
+      saveBtnText.textContent = '保存数据';
+      saveSpinner.style.display = 'none';
+    }
+  });
+
+  // 显示消息函数
+  function showMessage(message, type) {
+    saveMessageEl.textContent = message;
+    saveMessageEl.className = `message message-${type}`;
+    saveMessageEl.style.display = 'block';
+    
+    // 5秒后自动隐藏成功消息
+    if (type === 'success') {
+      setTimeout(() => {
+        saveMessageEl.style.display = 'none';
+      }, 5000);
+    }
+  }
+
+  // 健康检查按钮（匹配提供的JSON结构）
+  $('ping').addEventListener('click', async () => {
+    // 重置显示状态
+    const healthReport = $('health-report');
+    const healthError = $('health-error');
+    healthReport.style.display = 'none';
+    healthError.style.display = 'none';
+
+    try {
+      const res = await fetch('/api/health');
+
+      if (!res.ok) throw new Error(`服务响应异常: ${res.status}`);
+
+      const data = await res.json();
+
+      // 填充健康检查报表（严格匹配字段）
+      $('service-status').textContent = data.status === 'ok' ? 'Normal' : 'Abnormal';
+      $('service-status').className = `value ${data.status === 'ok' ? 'status-normal' : 'status-error'}`;
+
+      $('model-ready').textContent = data.model_ready ? 'Ready' : 'Not ready';
+      $('model-ready').className = `value ${data.model_ready ? 'status-normal' : 'status-error'}`;
+
+      // 格式化时间
+      const now = new Date();
+      $('check-time').textContent = now.toLocaleString();
+
+      // 显示健康检查报表
+      healthReport.style.display = 'block';
+
+    } catch (err) {
+      healthError.textContent = '错误：' + err.message;
+      healthError.style.display = 'block';
+    }
+  });
+
+  // 模型信息按钮（匹配提供的JSON结构）
+  $('info').addEventListener('click', async () => {
+    // 重置显示状态
+    const modelReport = $('model-report');
+    const modelError = $('model-error');
+    const featureContainer = $('feature-columns-container');
+
+    modelReport.style.display = 'none';
+    modelError.style.display = 'none';
+    featureContainer.innerHTML = ''; // 清空现有特征列
+
+    try {
+      const res = await fetch('/api/model_info');
+
+      if (!res.ok) throw new Error(`获取模型信息失败: ${res.status}`);
+
+      const data = await res.json();
+
+      // 填充模型信息报表（严格匹配嵌套结构）
+      if (data.voice_model) {
+        $('model-mae').textContent = data.voice_model.mae !== undefined ?
+                data.voice_model.mae.toFixed(4) : '未知';
+
+        // 动态生成特征列
+        if (data.voice_model.feature_columns && Array.isArray(data.voice_model.feature_columns)) {
+          data.voice_model.feature_columns.forEach((feature, index) => {
+            const metricEl = document.createElement('div');
+            metricEl.className = 'metric';
+            metricEl.innerHTML = `
+              <span class="label">Feature ${index + 1}</span>
+              <span class="value">${feature}</span>
+            `;
+            featureContainer.appendChild(metricEl);
+          });
+        } else {
+          featureContainer.innerHTML = `
+            <div class="metric">
+              <span class="label">特征列</span>
+              <span class="value">无数据</span>
+            </div>
+          `;
+        }
+      }
+
+      // 步态模型状态
+      $('gait-model-ready').textContent = data.gait_model_ready ? 'Yes' : 'No';
+      $('gait-model-ready').className = `value ${data.gait_model_ready ? 'status-normal' : 'status-error'}`;
+
+      // 显示模型信息报表
+      modelReport.style.display = 'block';
+
+    } catch (err) {
+      modelError.textContent = '错误：' + err.message;
+      modelError.style.display = 'block';
+    }
+  });
+</script>
+</body>
+</html>
+
